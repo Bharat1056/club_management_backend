@@ -1,10 +1,11 @@
 import mongoose, { Schema } from "mongoose";
-import { User } from "./user.model";
-import { higherMemberLimit } from "../constants/constant";
+import { higherMemberLimit } from "../constants/constant.js";
 
 const baseSchema = new Schema({
-  type: Schema.Types.ObjectId,
-  ref: "User",
+  type: {
+    type: Schema.Types.ObjectId,
+    ref: 'User', 
+  },
 });
 
 const clubSchema = new Schema(
@@ -21,25 +22,27 @@ const clubSchema = new Schema(
     },
     facultyAdvisor: {
       type: String,
-      required: true,
-      trim: true,
       required: [true, "Faculty Advisor name is required"],
+      trim: true,
     },
     coordinator: {
-      type: [baseSchema],
+      type: [baseSchema], 
       required: true,
-      trim: true,
-      validate: [higherMemberLimit, "Exceed the higher member limit of 2"],
+      validate: {
+        validator: (value) => value.length <= higherMemberLimit, 
+        message: "Exceed the higher member limit of 2",
+      },
     },
     assistantCoordinator: {
       type: [baseSchema],
       required: true,
-      trim: true,
-      validate: [higherMemberLimit, "Exceed the higher member limit of 2"],
+      validate: {
+        validator: (value) => value.length <= higherMemberLimit, 
+        message: "Exceed the higher member limit of 2",
+      },
     },
-    members: [baseSchema],
+    members: [baseSchema], 
   },
-
   { timestamps: true }
 );
 

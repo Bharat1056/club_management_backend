@@ -5,7 +5,7 @@ import {
   getAllClubs,
   getOneClub,
   updateClub,
-} from "../controller/club.controller";
+} from "../controller/club.controller.js";
 
 const router = Router();
 
