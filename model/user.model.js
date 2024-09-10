@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import { skillsArrayLimit } from "../constants/constant";
 
 const userSchema = new Schema(
   {
@@ -7,11 +7,17 @@ const userSchema = new Schema(
       type: String,
       require: true,
       unique: true,
-      lowercase: true, 
+      lowercase: true,
       trim: true,
       index: true,
     },
-
+    email: {
+      type: String,
+      require: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
     password: {
       type: String,
       require: [true, "Password is required"],
@@ -19,46 +25,50 @@ const userSchema = new Schema(
     fullName: {
       type: String,
       required: true,
-      trim: [true, "full name is required"]
+      trim: [true, "full name is required"],
     },
     gender: {
       type: String,
-      enum: ['Male', 'Female', 'Other'],
-      required:[true, "Gender box can't be empty"]
-
+      enum: ["Male", "Female", "Other"],
+      required: [true, "Gender box can't be empty"],
     },
-
-    // year: {
-    //   type: Number,
-    //   required: true,
-    //   min: 1,  
-    //   max: 5  
-    // },  
-   
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
     yearOfGraduation: {
       type: Number,
-      required: [true, "choose an year of graduation "]
-      
+      required: [true, "choose an year of graduation "],
     },
     club: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Club',  
-      required: [true, "you must be a club member to register"]
+      type: Schema.Types.ObjectId,
+      ref: "Club",
+      required: [true, "you must be a club member to register"],
     },
     domain: {
       type: String,
-      required: false,
-      trim: true
+      trim: true,
     },
     photo: {
-      url: String, 
-      required: false
+      url: String,
     },
     skills: {
-      type: [String], 
-      validate: [arrayLimit, 'exceeds the limit of 7']  
+      type: [String],
+      validate: [skillsArrayLimit, "exceeds the limit of 7"],
     },
-
+    isAuthenticated: {
+      type: Boolean,
+      default: false,
+    },
+    githubLink: {
+      type: String,
+      trim: true,
+    },
+    linkedinLink: {
+      type: String,
+      trim: true,
+    },
   },
 
   { timestamps: true }
