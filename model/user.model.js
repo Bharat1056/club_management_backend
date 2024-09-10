@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import { hashSaltRound, skillsArrayLimit } from "../constants/constant";
-import bcrypt from 'bcrypt'
+import { hashSaltRound, skillsArrayLimit } from "../constants/constant.js";
+import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
   {
@@ -44,7 +44,7 @@ const userSchema = new Schema(
     },
     club: {
       type: Schema.Types.ObjectId,
-      ref: "Club",
+      ref: 'Club',
       required: [true, "you must be a club member to register"],
     },
     domain: {
@@ -56,7 +56,10 @@ const userSchema = new Schema(
     },
     skills: {
       type: [String],
-      validate: [skillsArrayLimit, "exceeds the limit of 7"],
+      validate: {
+        validator: (value) => skillsArrayLimit <= value,
+        message: "exceeds the limit of 7",
+      },
     },
     isAuthenticated: {
       type: Boolean,
@@ -80,10 +83,10 @@ userSchema.pre(/^(find|findOne)/, function () {
 });
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next()
+  if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(hashSaltRound);
-  this.password = bcrypt.hash(this.password, salt)
-  next()
-})
+  this.password = bcrypt.hash(this.password, salt);
+  next();
+});
 
 export const User = mongoose.model("User", userSchema);
