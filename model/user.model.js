@@ -57,7 +57,7 @@ const userSchema = new Schema(
     skills: {
       type: [String],
       validate: {
-        validator: (value) => skillsArrayLimit <= value,
+        validator: (value) => value.length <= skillsArrayLimit,
         message: "exceeds the limit of 7",
       },
     },
