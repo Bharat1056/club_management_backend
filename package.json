@@ -15,6 +15,7 @@
   "author": "Bharat Panigrahi",
   "license": "MIT",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "cookieparser": "^0.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
