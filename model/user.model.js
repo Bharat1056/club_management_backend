@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import { skillsArrayLimit } from "../constants/constant";
+import { hashSaltRound, skillsArrayLimit } from "../constants/constant";
+import bcrypt from 'bcrypt'
 
 const userSchema = new Schema(
   {
@@ -34,7 +35,7 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "authority"],
       default: "user",
     },
     yearOfGraduation: {
@@ -73,5 +74,16 @@ const userSchema = new Schema(
 
   { timestamps: true }
 );
+
+userSchema.pre(/^(find|findOne)/, function () {
+  this.populate("club");
+});
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next()
+  const salt = await bcrypt.genSalt(hashSaltRound);
+  this.password = bcrypt.hash(this.password, salt)
+  next()
+})
 
 export const User = mongoose.model("User", userSchema);

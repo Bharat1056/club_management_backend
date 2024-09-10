@@ -28,11 +28,13 @@ const clubSchema = new Schema(
     coordinator: {
       type: [baseSchema],
       required: true,
+      trim: true,
       validate: [higherMemberLimit, "Exceed the higher member limit of 2"],
     },
     assistantCoordinator: {
       type: [baseSchema],
       required: true,
+      trim: true,
       validate: [higherMemberLimit, "Exceed the higher member limit of 2"],
     },
     members: [baseSchema],
@@ -40,5 +42,10 @@ const clubSchema = new Schema(
 
   { timestamps: true }
 );
+
+clubSchema.pre(/^(find|findOne)/, function () {
+  this.populate("coordinator");
+  this.populate("assistantCoordinator");
+});
 
 export const Club = mongoose.model("Club", clubSchema);
