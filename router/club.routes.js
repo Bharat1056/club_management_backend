@@ -19,7 +19,7 @@ router.route("/getAll").get(getAllClubs);
 router.route("/get/:id").get(getOneClub);
 
 // update club details
-router.route("/update").put(updateClub);
+router.route("/update/:id").put(updateClub);
 
 // delete club
 router.route("/delete/:id").delete(deleteClub);
