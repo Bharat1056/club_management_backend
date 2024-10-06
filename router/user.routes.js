@@ -23,7 +23,7 @@ router.route("/get/:id").get(getUserById);
 router.route("/:clubName").get(getAllUsersByClubName);
 
 // update user
-router.route("/update").post(updateUser);
+router.route("/update/:id").put(updateUser);
 
 // delete user
 router.route("/delete/:id").delete(deleteUser);

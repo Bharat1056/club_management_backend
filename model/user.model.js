@@ -48,7 +48,15 @@ const userSchema = new Schema(
       required: [true, "you must be a club member to register"],
     },
     domain: {
-      type: String,
+      type: [String],
+      enum: ["web", "app", "ai/ml", "game","cybersecurity","outreach","competetive programming"],
+      validate: {
+        validator: function (value) {
+          
+          return value.length > 0;
+        },
+        message: "Domain field must have at least one value.",
+      },
       trim: true,
     },
     photo: {
