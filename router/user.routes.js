@@ -7,26 +7,19 @@ import {
   getUserById,
   getAllUsersByClubName
 } from "../controller/user.controller.js";
+import verifyUserAuth from "../middleware/user.auth.middleware.js";
 
 const router = Router();
 
 // create user
 router.route("/create").post(createUser);
 
-// show all user
-router.route("/getAll").get(getAllUsers);
-
 // show single user
 router.route("/get/:id").get(getUserById);
 
-// show users by club name
-router.route("/:clubName").get(getAllUsersByClubName);
-
 // update user
-router.route("/update/:id").put(updateUser);
+router.route("/update").put(verifyUserAuth, updateUser);
 
-// delete user
-router.route("/delete/:id").delete(deleteUser);
 
 
 export default router;

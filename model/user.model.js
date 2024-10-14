@@ -35,24 +35,31 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin", "authority"],
+      enum: ["Member", "Assistant coordinator", "Coordinator"],
       default: "user",
     },
     yearOfGraduation: {
       type: Number,
       required: [true, "choose an year of graduation "],
     },
-    club: {
+    clubId: {
       type: Schema.Types.ObjectId,
-      ref: 'Club',
+      ref: "Club",
       required: [true, "you must be a club member to register"],
     },
     domain: {
       type: [String],
-      enum: ["web", "app", "ai/ml", "game","cybersecurity","outreach","competetive programming"],
+      enum: [
+        "web",
+        "app",
+        "ai/ml",
+        "game",
+        "cybersecurity",
+        "outreach",
+        "competetive programming",
+      ],
       validate: {
         validator: function (value) {
-          
           return value.length > 0;
         },
         message: "Domain field must have at least one value.",
@@ -86,9 +93,6 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.pre(/^(find|findOne)/, function () {
-  this.populate("club");
-});
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
