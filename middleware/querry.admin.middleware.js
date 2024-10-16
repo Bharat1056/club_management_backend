@@ -1,4 +1,4 @@
-import { defaultPaginateValue } from "../constants/constant";
+import { defaultPaginateValue } from "../constants/constant.js";
 
 const queryAdminMiddleware = (Model, type="club", modelPath="club") => async (req, res, next) => {
   try {

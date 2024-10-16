@@ -1,5 +1,5 @@
-import Event from "../model/events.model";
-import asyncHandler from "../utils/asyncHandler";
+import Event from "../model/events.model.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 export const createEvent = asyncHandler(async (req, res) => {
   const clubId = req.club.clubId;

@@ -49,10 +49,10 @@ router
 
 // Normal routes
 
-// show all club - clubName, clubImage, clubId
+// show all club - clubName, clubImage, clubId, 
 router.route("/getAll/:type").get(getAllClubs);
 
-// show one club - clubName, clubImage, clubId, clubDescription,
+// show one club - clubName, clubImage, clubId, clubDescription, faculties, domain leads
 router.route("/get/intro/:id").get(getOneClub);
 
 // paginate events

@@ -1,4 +1,4 @@
-import { defaultPaginateValue } from "../constants/constant";
+import { defaultPaginateValue } from "../constants/constant.js";
 
 const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
   try {

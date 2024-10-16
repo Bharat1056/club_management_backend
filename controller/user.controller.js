@@ -17,6 +17,7 @@ export const createUser = asyncHandler(async (req, res) => {
     skills,
     githubLink,
     linkedinLink,
+    activeClub
   } = req.body;
   let validationErrors = [];
   if (!username) validationErrors.push("Username is required.");
@@ -46,7 +47,8 @@ export const createUser = asyncHandler(async (req, res) => {
   //   throw new apiError(404, "Club not found.");
   // }
 
-  const user = new User({
+  // create the user
+  const user = await User.create({
     username,
     email,
     password,
@@ -61,7 +63,7 @@ export const createUser = asyncHandler(async (req, res) => {
     linkedinLink,
   });
 
-  await user.save();
+  // send mail to their corresponding club owner
 
   res
     .status(201)

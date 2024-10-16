@@ -1,11 +1,11 @@
 import { Router } from "express";
-import verifyClubAuth from "../middleware/club.auth.middleware";
+import verifyClubAuth from "../middleware/club.auth.middleware.js";
 import {
   createEvent,
   deleteEvent,
   getUpComingEvents,
   updateEvent,
-} from "../controller/event.controller";
+} from "../controller/event.controller.js";
 const router = Router();
 
 // create

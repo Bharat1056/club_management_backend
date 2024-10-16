@@ -1,11 +1,11 @@
 import { Router } from "express";
-import verifyClubAuth from "../middleware/club.auth.middleware";
+import verifyClubAuth from "../middleware/club.auth.middleware.js";
 import {
   createAchievement,
   deleteAchievement,
   getUpComingAchievements,
   updateAchievement,
-} from "../controller/achievement.controller";
+} from "../controller/achievement.controller.js";
 
 const router = Router();
 

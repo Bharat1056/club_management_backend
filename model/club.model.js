@@ -37,7 +37,7 @@ const clubSchema = new Schema(
       trim: true,
     },
     coordinator: {
-      type: [baseSchema],
+      type: [String],
       required: true,
       validate: {
         validator: (value) => value.length <= higherMemberLimit,
@@ -45,7 +45,7 @@ const clubSchema = new Schema(
       },
     },
     assistantCoordinator: {
-      type: [baseSchema],
+      type: [String],
       required: true,
       validate: {
         validator: (value) => value.length <= higherMemberLimit,

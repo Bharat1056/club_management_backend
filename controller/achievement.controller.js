@@ -1,4 +1,5 @@
-import Achievement from "../model/achievement.model.js";
+import Achievement from "../model/achievements.model.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 export const createAchievement = asyncHandler(async (req, res) => {
   const clubId = req.club.clubId;
