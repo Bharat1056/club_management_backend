@@ -60,10 +60,10 @@ router
   .route("/get/event/:id")
   .get(queryMiddleware("Event", "clubId"), getClubEvent);
 
-// paginate members and also short via years
+// paginate members
 router
   .route("/get/members/:id")
-  .get(queryMiddleware("User", "clubId"), getClubMember);
+  .get(queryMiddleware("Club", "members"), getClubMember);
 
 // paginate achievements
 router

@@ -18,6 +18,8 @@ const verifyUserAuth = asyncHandler(async (req, res, next) => {
 
     if (!user) throw new apiError(401, "Invalid access token");
 
+    if (!user.isAuthenticated) throw new apiError(401, "User is not verified");
+
     req.user = user;
     next();
   } catch (error) {

@@ -9,8 +9,14 @@ const verifyClubUserAuth = asyncHandler(async (req, res, next) => {
     const isUserExist = await User.findById(trimmedId);
     if (!isUserExist) throw new apiError(401, "User is Invalid");
 
-    if (isUserExist.clubId !== currentClub._id)
-      throw new apiError(401, "Access is Denied");
+    if (!isUserExist.isAuthenticated)
+      throw new apiError(401, "User is not verified");
+
+    if (!isUserExist.isInClub)
+      throw new apiError(401, "User is not in any club");
+
+    if (!isUserExist.clubId.includes(currentClub._id))
+      throw new apiError(401, "You can't remove user from another club");
 
     next();
   } catch (error) {

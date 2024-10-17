@@ -7,7 +7,6 @@ import emptyFieldValidation from "../helper/emptyFieldValidation.js";
 
 // POST
 export const createClub = asyncHandler(async (req, res) => {
-  const session = await mongoose.startSession();
   const {
     clubName,
     achievements,
@@ -96,7 +95,7 @@ export const getClubEvent = asyncHandler(async (req, res) => {
 export const getClubMember = asyncHandler(async (req, res) => {
   const { id } = req.params; // club id
   const trimmedId = id.trim();
-  const club = await Club.findById(trimmedId);
+  const club = await Club.findById(trimmedId).populate("members");
   if (!club) {
     throw new apiError(404, "Club not found.");
   }
@@ -179,9 +178,6 @@ export const changeRole = asyncHandler(async (req, res) => {
   const trimmedId = id.trim();
   const { role } = req.body;
   const user = await User.findById(trimmedId);
-  if (!user) {
-    throw new apiError(404, "User not found.");
-  }
   const updatedUser = await User.findByIdAndUpdate(
     user._id,
     { role: role },
@@ -193,24 +189,51 @@ export const changeRole = asyncHandler(async (req, res) => {
 });
 
 export const removeMember = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const trimmedId = id.trim();
-  const user = await User.findById(trimmedId);
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (!user) {
-    throw new apiError(404, "User not found.");
-  }
-  await User.findByIdAndDelete(user._id);
+  try {
+    const { id } = req.params;
+    const trimmedId = id.trim(); // user id
 
-  // check how many clubs the user is in
-  const totalClubs = await Club.find({ members: trimmedId });
+    const updatedUser = await User.findByIdAndUpdate(
+      trimmedId,
+      {
+        $pull: { clubId: req.club._id },
+      },
+      { new: true }
+    ).session(session);
 
-  if (totalClubs.length === 0) {
-    const deletedUser = await User.findByIdAndDelete(user._id);
-    if (!deletedUser) {
+    const updatedClub = await Club.findByIdAndUpdate(
+      req.club._id,
+      {
+        $pull: { members: trimmedId },
+      },
+      { new: true }
+    ).session(session);
+
+    if (!updatedUser || !updatedClub) {
       throw new apiError(404, "Some Error Occoured");
     }
-  }
 
-  res.status(200).json(new apiResponse(200, "Member removed successfully."));
+    // check how many clubs the user is in
+    const totalClubs = updatedUser.clubId;
+
+    if (totalClubs.length === 0) {
+      const deletedUser = await User.findByIdAndDelete(updatedUser._id).session(
+        session
+      );
+      if (!deletedUser) {
+        throw new apiError(404, "Some Error Occoured");
+      }
+    }
+    session.commitTransaction();
+    res.status(200).json(new apiResponse(200, "Member removed successfully."));
+  } catch (error) {
+    await session.abortTransaction();
+    console.error(error);
+    throw new apiError(500, "Error in deleting user.");
+  } finally {
+    await session.endSession();
+  }
 });

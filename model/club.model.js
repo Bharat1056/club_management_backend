@@ -72,6 +72,13 @@ const clubSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
+    serviceMail: {
+      type: String,
+      require: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
   },
   { timestamps: true }
 );
