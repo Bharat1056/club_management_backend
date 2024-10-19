@@ -19,14 +19,14 @@ const userSchema = new Schema(
   {
     regdNo: {
       type: Number,
-      require: true,
+      require: [true, "Regd no is required"],
       unique: true,
       trim: true,
       index: true,
     },
     email: {
       type: String,
-      require: true,
+      require: [true, "Email is required"],
       unique: true,
       trim: true,
       index: true,
@@ -45,7 +45,7 @@ const userSchema = new Schema(
       enum: ["Male", "Female", "Other"],
       required: [true, "Gender box can't be empty"],
     },
-    role: { // default member then admin changed this to others
+    role: { 
       type: String,
       enum: ["Member", "Assistant-Coordinator", "Coordinator"],
       default: "Member",
