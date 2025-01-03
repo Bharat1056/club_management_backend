@@ -1,4 +1,3 @@
-
 class apiError extends Error {
     constructor(
         statusCode,

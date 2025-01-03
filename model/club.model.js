@@ -83,11 +83,6 @@ const clubSchema = new Schema(
   { timestamps: true }
 );
 
-clubSchema.pre(/^(find|findOne)/, function () {
-  this.populate("coordinator");
-  this.populate("assistantCoordinator");
-});
-
 clubSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);

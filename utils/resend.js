@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
-const resend = new Resend("re_123456789");
+const resendApi = process.env.RESEND_EMAIL_API
+const resend = new Resend(resendApi);
 
 export default resend;
 

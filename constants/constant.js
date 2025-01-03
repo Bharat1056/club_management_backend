@@ -13,3 +13,4 @@ export const domainList = [
   "outreach",
   "competetive programming",
 ];
+export const baseUrl = "http://localhost:3000";

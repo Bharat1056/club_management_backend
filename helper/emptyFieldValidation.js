@@ -1,3 +1,5 @@
+import apiError from "../utils/apiError.js";
+
 const emptyFieldValidation = (fieldArray) => {
   let validationErrors = [];
   if (!fieldArray) validationErrors.push("fieldArray is required.");

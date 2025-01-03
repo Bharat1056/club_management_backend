@@ -7,7 +7,11 @@ import {
   verifyUser,
   clubJoinRequest,
   createUserWithoutVerification,
+
   loginUser
+
+  deleteUnverifiedUser,
+
 } from "../controller/user.controller.js";
 import verifyUserAuth from "../middleware/user.auth.middleware.js";
 
@@ -15,6 +19,9 @@ const router = Router();
 
 // create user
 router.route("/create").post(createUser);
+
+// delete unverified user
+router.route("/vf/delete/:userId").delete(deleteUnverifiedUser)
 
 // club join request
 router.route("/join").post(verifyUserAuth, clubJoinRequest);
