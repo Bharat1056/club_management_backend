@@ -276,6 +276,7 @@ export const getUserById = asyncHandler(async (req, res) => {
 
 export const createUserWithoutVerification = asyncHandler(async (req, res) => {
   const session = await mongoose.startSession();
+  session.startTransaction();
 
   const {
     regdNo,
@@ -303,27 +304,30 @@ export const createUserWithoutVerification = asyncHandler(async (req, res) => {
   }
 
   // Create the user
-  const user = await User.create([
-    {
-      regdNo,
-      email,
-      password,
-      fullName,
-      gender,
-      yearOfGraduation,
-      domain,
-      photo,
-      skills,
-      githubLink,
-      linkedinLink,
-      isAuthenticated: true,
-    },
-  ]);
+    const user = await User.create(
+      [
+        {
+          regdNo,
+          email,
+          password,
+          fullName,
+          gender,
+          yearOfGraduation,
+          domain,
+          photo,
+          skills,
+          githubLink,
+          linkedinLink,
+          isAuthenticated: true,
+        },
+      ],
+      { session }
+    );
 
   if (!user) {
     throw new apiError(404, "There is an error occured in creating user");
   }
-
+  await session.commitTransaction();
   res
     .status(201)
     .json(
