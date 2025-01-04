@@ -275,8 +275,61 @@ export const getUserById = asyncHandler(async (req, res) => {
 });
 
 export const createUserWithoutVerification = asyncHandler(async (req, res) => {
-  // add logic here
-})
+  const session = await mongoose.startSession();
+
+  const {
+    regdNo,
+    email,
+    password,
+    fullName,
+    gender,
+    yearOfGraduation,
+    domain,
+    photo,
+    skills,
+    githubLink,
+    linkedinLink,
+  } = req.body;
+
+  // Validate required fields
+  emptyFieldValidation([regdNo, email, password, fullName]);
+
+  const existingUser = await User.findOne({
+    $or: [{ email }, { regdNo }],
+  }).session(session);
+
+  if (existingUser) {
+    throw new apiError(409, "User already exists. please login");
+  }
+
+  // Create the user
+  const user = await User.create([
+    {
+      regdNo,
+      email,
+      password,
+      fullName,
+      gender,
+      yearOfGraduation,
+      domain,
+      photo,
+      skills,
+      githubLink,
+      linkedinLink,
+      isAuthenticated: true,
+    },
+  ]);
+
+  if (!user) {
+    throw new apiError(404, "There is an error occured in creating user");
+  }
+
+  res
+    .status(201)
+    .json(
+      new apiResponse(201, user, "User created successfully but not verified")
+    );
+});
 
 
 
