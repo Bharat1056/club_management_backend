@@ -358,9 +358,9 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (!user.isAuthenticated) {
     return res.status(401).json(new apiResponse(401, null, "User not verified."));
   }
-  if (!user.isInClub) {
-    return res.status(401).json(new apiResponse(401, null, "User is not present in any club."));
-  }
+  // if (!user.isInClub) {
+  //   return res.status(401).json(new apiResponse(401, null, "User is not present in any club."));
+  // }
   const token = jwt.sign(
     { _id: user._id, email: user.email },
     process.env. ACCESS_TOKEN_SECRET_USER    ,

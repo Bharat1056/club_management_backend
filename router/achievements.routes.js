@@ -14,9 +14,9 @@ const router = Router();
 // create
 router.route("/create").post(verifyClubAuth, createAchievement);
 // update
-router.route("/update").put(verifyClubAuth, updateAchievement);
+router.route("/update/:id").put(verifyClubAuth, updateAchievement);
 // delete
-router.route("/delete").delete(verifyClubAuth, deleteAchievement);
+router.route("/delete/:id").delete(verifyClubAuth, deleteAchievement);
 
 // trending achievements - only 3
 router.route("/upcoming").get(getUpComingAchievements);

@@ -1,8 +1,9 @@
 import Achievement from "../model/achievements.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import apiResponse from "../utils/apiResponse.js";
 
 export const createAchievement = asyncHandler(async (req, res) => {
-  const clubId = req.club.clubId;
+  const clubId = req.club._id;
   const { header, description } = req.body;
 
   const newAchievement = await Achievement.create({
@@ -23,7 +24,7 @@ export const createAchievement = asyncHandler(async (req, res) => {
 });
 
 export const updateAchievement = asyncHandler(async (req, res) => {
-  const clubId = req.club.clubId;
+  const clubId = req.club._id;
   const { id } = req.params;
   const trimmedId = id.trim();
   const { header, description } = req.body;
