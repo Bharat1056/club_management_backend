@@ -10,9 +10,6 @@ const queryAdminMiddleware = (Model, type="club", modelPath="club") => async (re
       fields = null,
     } = req.query;
 
-    if (!req[type]) {
-      throw new Error(`Request does not contain ${type} information.`);
-    }
 
 
     const clubId = req[type]._id;
