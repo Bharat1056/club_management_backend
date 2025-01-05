@@ -3,7 +3,7 @@ export const clubPhotoLimit = 3;
 export const higherMemberLimit = 2;
 export const hashSaltRound = 10;
 export const defaultPaginateValue = 20;
-export const resendDeliverUser = "imbitu@bharatpanigrahi.cloud"
+export const resendDeliverUser = "imbitu@bharatpanigrahi.cloud";
 export const domainList = [
   "web",
   "app",
@@ -13,4 +13,4 @@ export const domainList = [
   "outreach",
   "competetive programming",
 ];
-export const baseUrl = "http://localhost:3000";
+export const baseUrl = "https://club-management-backend.onrender.com";
