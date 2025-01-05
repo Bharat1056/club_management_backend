@@ -275,8 +275,65 @@ export const getUserById = asyncHandler(async (req, res) => {
 });
 
 export const createUserWithoutVerification = asyncHandler(async (req, res) => {
-  // add logic here
-})
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  const {
+    regdNo,
+    email,
+    password,
+    fullName,
+    gender,
+    yearOfGraduation,
+    domain,
+    photo,
+    skills,
+    githubLink,
+    linkedinLink,
+  } = req.body;
+
+  // Validate required fields
+  emptyFieldValidation([regdNo, email, password, fullName]);
+
+  const existingUser = await User.findOne({
+    $or: [{ email }, { regdNo }],
+  }).session(session);
+
+  if (existingUser) {
+    throw new apiError(409, "User already exists. please login");
+  }
+
+  // Create the user
+    const user = await User.create(
+      [
+        {
+          regdNo,
+          email,
+          password,
+          fullName,
+          gender,
+          yearOfGraduation,
+          domain,
+          photo,
+          skills,
+          githubLink,
+          linkedinLink,
+          isAuthenticated: true,
+        },
+      ],
+      { session }
+    );
+
+  if (!user) {
+    throw new apiError(404, "There is an error occured in creating user");
+  }
+  await session.commitTransaction();
+  res
+    .status(201)
+    .json(
+      new apiResponse(201, user, "User created successfully but not verified")
+    );
+});
 
 
 
@@ -301,9 +358,9 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (!user.isAuthenticated) {
     return res.status(401).json(new apiResponse(401, null, "User not verified."));
   }
-  if (!user.isInClub) {
-    return res.status(401).json(new apiResponse(401, null, "User is not present in any club."));
-  }
+  // if (!user.isInClub) {
+  //   return res.status(401).json(new apiResponse(401, null, "User is not present in any club."));
+  // }
   const token = jwt.sign(
     { _id: user._id, email: user.email },
     process.env. ACCESS_TOKEN_SECRET_USER    ,

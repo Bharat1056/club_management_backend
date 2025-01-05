@@ -261,7 +261,7 @@ export const loginAdmin = asyncHandler(async (req, res) => {
     throw new apiError(401, "Invalid email or password.");
   }
 
-  const token = jwt.sign({ _id: club._id }, process.env.ACCESS_TOKEN_SECRET_ADMIN, { expiresIn: "1h" });
+  const token = jwt.sign({ _id: club._id }, process.env.ACCESS_TOKEN_SECRET_CLUB, { expiresIn: "1h" });
 
 
   res.cookie("clubT", token, {

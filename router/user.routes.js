@@ -8,7 +8,7 @@ import {
   clubJoinRequest,
   createUserWithoutVerification,
 
-  loginUser
+  loginUser,
 
   deleteUnverifiedUser,
 
