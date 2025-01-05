@@ -16,25 +16,34 @@ export const createClub = asyncHandler(async (req, res) => {
     coordinator,
     assistantCoordinator,
     members,
+    password, // Add password field
+    serviceMail, // Include serviceMail
   } = req.body;
+ 
   // Empty field Validation
-  emptyFieldValidation([
+  emptyFieldValidation({
     clubName,
     achievements,
+    clubDescription,
+    clubLogo,
     facultyAdvisor,
     coordinator,
     assistantCoordinator,
-    clubDescription,
-    clubLogo,
     members,
-  ]);
+    password, // Validate password as well
+    serviceMail, // Include serviceMail
+  });
   const club = new Club({
     clubName,
     achievements,
+    clubDescription,
+    clubLogo,
     facultyAdvisor,
-    coordinator, // name
-    assistantCoordinator, // name
+    coordinator,
+    assistantCoordinator,
     members,
+    password, // Pass password to Club creation
+    serviceMail, // Include serviceMail
   });
   await club.save();
   return res
@@ -45,7 +54,10 @@ export const createClub = asyncHandler(async (req, res) => {
 // GET
 export const getAllClubs = asyncHandler(async (req, res) => {
   const { type } = req.params;
-  const clubs = await Club.find({ type: type.trim() });
+ 
+  const clubs = await Club.find({ type });
+  console.log(type);
+ 
   res
     .status(200)
     .json(new apiResponse(200, clubs, "Clubs retrieved successfully."));
@@ -75,7 +87,10 @@ export const getOneClub = asyncHandler(async (req, res) => {
 
 // GET
 export const getClubEvent = asyncHandler(async (req, res) => {
-  const { count, offset, limit, data } = req.paginate;
+  console.log("res.paginate:", res.paginate);
+
+  const { count, offset, limit, data } = res.paginate;
+  console.log(res.paginate)
 
   if (data.length === 0) {
     throw new apiError(404, "There is no event in this club.");
@@ -108,20 +123,29 @@ export const getClubMember = asyncHandler(async (req, res) => {
 
 // GET
 export const getClubAchievements = asyncHandler(async (req, res) => {
-  const { count, limit, offset, data } = req.paginate;
+  const { count, limit, offset, data } = res.paginate;
+  
+  // If no data found, return a message but avoid throwing an error
   if (data.length === 0) {
-    throw new apiError(404, [], "There is no achievement in this club.");
+    return res.status(200).json({
+      message: "No achievements found for this club.",
+      count,
+      offset,
+      limit,
+      data
+    });
   }
-  res
-    .status(200)
-    .json(
-      new apiResponse(
-        200,
-        { count, offset, limit, data },
-        "Club Achievements retrieved successfully."
-      )
-    );
+
+  res.status(200).json(
+    new apiResponse(
+      200,
+      { count, offset, limit, data },
+      "Club Achievements retrieved successfully."
+    )
+  );
 });
+
+
 
 // PUT
 export const updateClub = asyncHandler(async (req, res) => {

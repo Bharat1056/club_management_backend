@@ -10,14 +10,21 @@ const queryAdminMiddleware = (Model, type="club", modelPath="club") => async (re
       fields = null,
     } = req.query;
 
+    if (!req[type]) {
+      throw new Error(`Request does not contain ${type} information.`);
+    }
+
+
     const clubId = req[type]._id;
 
-    const filterObj = JSON.parse({ [modelPath]: clubId, ...filter });
+    // Parse the filter and sort strings into objects
+    const parsedFilter = JSON.parse(filter);
+    const filterObj = { [modelPath]: clubId, ...parsedFilter };
     const sortObj = JSON.parse(sort);
     const fieldsObj = fields ? fields.split(",").join(" ") : null;
 
-    const query = await Model.find(filterObj).select(fieldsObj).sort(sortObj);
-    const countQuery = await Model.find(filterObj).select(fieldsObj).sort(sortObj);
+    const query = Model.find(filterObj).select(fieldsObj).sort(sortObj);
+    const countQuery = Model.find(filterObj).select(fieldsObj).sort(sortObj);
     const count = await countQuery.countDocuments();
 
     query.skip(parseInt(offset)).limit(parseInt(limit));
@@ -32,7 +39,7 @@ const queryAdminMiddleware = (Model, type="club", modelPath="club") => async (re
 
     next();
   } catch (error) {
-    console.log(json.stringify(err));
+    console.log(JSON.stringify(error)); // Corrected to JSON.stringify
     next(error);
   }
 };

@@ -1,13 +1,14 @@
 import apiError from "../utils/apiError.js";
 
-const emptyFieldValidation = (fieldArray) => {
-  let validationErrors = [];
-  if (!fieldArray) validationErrors.push("fieldArray is required.");
-  for (const requestField of fieldArray) {
-    if (!requestField) validationErrors.push(`${requestField} is required.`);
+const emptyFieldValidation = (fields) => {
+  const validationErrors = [];
+  for (const [fieldName, fieldValue] of Object.entries(fields)) {
+    if (!fieldValue) {
+      validationErrors.push(`${fieldName} is required.`);
+    }
   }
   if (validationErrors.length > 0) {
-    throw new apiError(400, validationErrors[0]);
+    throw new apiError(400, validationErrors[0]); // Return the first error.
   }
 };
 
