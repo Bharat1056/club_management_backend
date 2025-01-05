@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { defaultPaginateValue } from '../config/paginate.config.js';
+import { defaultPaginateValue } from "../constants/constant.js";
 const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
   try {
     const {
