@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import { defaultPaginateValue } from "../constants/constant.js";
 const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
   try {
@@ -50,9 +50,4 @@ const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
   }
 };
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> df668e574396db14ed9fbdd480dc07395060861e
 export default queryMiddleware;
