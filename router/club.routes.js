@@ -16,6 +16,10 @@ import verifyClubAuth from "../middleware/club.auth.middleware.js";
 import verifyClubUserAuth from "../middleware/club.user.auth.middleware.js";
 import queryMiddleware from "../middleware/query.middleware.js";
 import queryAdminMiddleware from "../middleware/querry.admin.middleware.js";
+import Event from "../model/events.model.js";
+import  {Club}  from "../model/club.model.js";
+import Achievement from "../model/achievements.model.js";
+import { User } from "../model/user.model.js";
 
 const router = Router();
 
@@ -36,7 +40,8 @@ router.route("/admin/delete").delete(verifyClubAuth, deleteClub);
 // paginate members
 router
   .route("/get/admin/sac")
-  .get(verifyClubAuth, queryAdminMiddleware("User"), superAccess);
+  .get(verifyClubAuth, queryAdminMiddleware(User), superAccess);
+
 
 // id - member id
 router
@@ -59,16 +64,16 @@ router.route("/get/intro/:id").get(getOneClub);
 // paginate events
 router
   .route("/get/event/:id")
-  .get(queryMiddleware("Event", "clubId"), getClubEvent);
+  .get(queryMiddleware(Event, "clubId"), getClubEvent);
 
 // paginate members
 router
   .route("/get/members/:id")
-  .get(queryMiddleware("Club", "members"), getClubMember);
+  .get(queryMiddleware(Club, "members"), getClubMember);
 
 // paginate achievements
 router
   .route("/get/achievements/:id")
-  .get(queryMiddleware("Achievement", "clubId"), getClubAchievements);
+  .get(queryMiddleware(Achievement, "clubId"), getClubAchievements);
 
 export default router;

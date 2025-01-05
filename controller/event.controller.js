@@ -61,6 +61,7 @@ export const deleteEvent = asyncHandler(async (req, res) => {
 
 export const getUpComingEvents = async (req, res) => {
   const upComingEvents = await Event.find().sort({ createdAt: -1 }).limit(3);
+  console.log(upComingEvents)
   if (!upComingEvents) {
     throw new apiError(404, "No events found.");
   }

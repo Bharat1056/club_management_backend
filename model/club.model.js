@@ -1,6 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 import { higherMemberLimit } from "../constants/constant.js";
-import bcrypt from "bcrypt"
+
+import bcrypt from "bcrypt";
+
+
+
 const baseUserSchema = new Schema({
   type: {
     type: Schema.Types.ObjectId,
