@@ -1,6 +1,9 @@
 import mongoose, { Schema } from "mongoose";
 import { higherMemberLimit } from "../constants/constant.js";
+
 import bcrypt from "bcrypt";
+
+
 
 const baseUserSchema = new Schema({
   type: {
@@ -55,11 +58,11 @@ const clubSchema = new Schema(
     },
     clubLogo: {
       type: String,
-      required: true,
+      required:  [true, "Club logo is required"],
     },
     clubDescription: {
       type: String,
-      required: true,
+      required:  [true, "Club description is required"],
     },
     members: [baseUserSchema],
     type: {

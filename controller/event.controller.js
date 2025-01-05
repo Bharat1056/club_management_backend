@@ -1,8 +1,9 @@
 import Event from "../model/events.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import apiResponse from "../utils/apiResponse.js";
 
 export const createEvent = asyncHandler(async (req, res) => {
-  const clubId = req.club.clubId;
+  const clubId = req.club._id;
   const { name, description, date, time, venue } = req.body;
 
   const newEvent = await Event.create({

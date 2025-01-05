@@ -7,7 +7,11 @@ import {
   verifyUser,
   clubJoinRequest,
   createUserWithoutVerification,
+
+  loginUser,
+
   deleteUnverifiedUser,
+
 } from "../controller/user.controller.js";
 import verifyUserAuth from "../middleware/user.auth.middleware.js";
 
@@ -36,5 +40,8 @@ router.route("/create/sc").post(createUserWithoutVerification);
 
 // update user
 router.route("/update").put(verifyUserAuth, updateUser);
+
+// login user
+router.route("/login").post(loginUser);
 
 export default router;

@@ -3,8 +3,9 @@ import asyncHandler from "../utils/asyncHandler.js";
 import apiError from "../utils/apiError.js";
 import apiResponse from "../utils/apiResponse.js";
 import { User } from "../model/user.model.js";
+import jwt from "jsonwebtoken"
 import emptyFieldValidation from "../helper/emptyFieldValidation.js";
-
+import bcrypt from "bcrypt"
 // POST
 export const createClub = asyncHandler(async (req, res) => {
   const {
@@ -16,10 +17,12 @@ export const createClub = asyncHandler(async (req, res) => {
     coordinator,
     assistantCoordinator,
     members,
+
     password, // Add password field
     serviceMail, // Include serviceMail
   } = req.body;
  
+
   // Empty field Validation
   emptyFieldValidation({
     clubName,
@@ -33,6 +36,7 @@ export const createClub = asyncHandler(async (req, res) => {
     password, // Validate password as well
     serviceMail, // Include serviceMail
   });
+
   const club = new Club({
     clubName,
     achievements,
@@ -44,6 +48,7 @@ export const createClub = asyncHandler(async (req, res) => {
     members,
     password, // Pass password to Club creation
     serviceMail, // Include serviceMail
+
   });
   await club.save();
   return res
@@ -260,4 +265,37 @@ export const removeMember = asyncHandler(async (req, res) => {
   } finally {
     await session.endSession();
   }
+});
+
+
+export const loginAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    throw new apiError(400, "Please provide both email and password.");
+  }
+
+  const club = await Club.findOne({ serviceMail: email }).select("+password");
+  if (!club) {
+    throw new apiError(401, "Invalid email or password.");
+  }
+
+  const token = jwt.sign({ _id: club._id }, process.env.ACCESS_TOKEN_SECRET_CLUB, { expiresIn: "1h" });
+
+
+  res.cookie("clubT", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", 
+    sameSite: "strict",
+    maxAge:24* 60 * 60 * 1000, // 1 day
+  });
+
+  res.status(200).json({
+    message: "Login successful",
+    token,
+    club: {
+      _id: club._id,
+      clubName: club.clubName,
+      email: club.serviceMail,
+    },
+  });
 });
