@@ -1,7 +1,6 @@
-import mongoose from 'mongoose';
-import { defaultPaginateValue } from '../constants/constant.js';
 
-
+import mongoose from "mongoose";
+import { defaultPaginateValue } from "../constants/constant.js";
 
 const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
   try {
@@ -18,7 +17,9 @@ const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
 
     // Check if the modelPath corresponds to an ObjectId and cast the ID if necessary
     const filterObj = {
-      [modelPath]: mongoose.Types.ObjectId.isValid(trimmedId) ? new mongoose.Types.ObjectId(trimmedId) : trimmedId,
+      [modelPath]: mongoose.Types.ObjectId.isValid(trimmedId)
+        ? new mongoose.Types.ObjectId(trimmedId)
+        : trimmedId,
       ...JSON.parse(filter),
     };
 
@@ -50,7 +51,5 @@ const queryMiddleware = (Model, modelPath) => async (req, res, next) => {
     next(error);
   }
 };
-
-
 
 export default queryMiddleware;
