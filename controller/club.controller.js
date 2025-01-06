@@ -5,7 +5,7 @@ import apiResponse from "../utils/apiResponse.js";
 import { User } from "../model/user.model.js";
 import jwt from "jsonwebtoken"
 import emptyFieldValidation from "../helper/emptyFieldValidation.js";
-import bcrypt from "bcrypt"
+
 // POST
 export const createClub = asyncHandler(async (req, res) => {
   const {
@@ -17,7 +17,6 @@ export const createClub = asyncHandler(async (req, res) => {
     coordinator,
     assistantCoordinator,
     members,
-
     password, // Add password field
     serviceMail, // Include serviceMail
   } = req.body;
@@ -37,7 +36,11 @@ export const createClub = asyncHandler(async (req, res) => {
     serviceMail, // Include serviceMail
   });
 
-  const club = new Club({
+  const existingClub = await Club.findOne({ clubName })
+  if(existingClub) {
+    throw new apiError(401, "Club already exist")
+  }
+  const club = await Club.create({
     clubName,
     achievements,
     clubDescription,
@@ -48,19 +51,24 @@ export const createClub = asyncHandler(async (req, res) => {
     members,
     password, // Pass password to Club creation
     serviceMail, // Include serviceMail
-
   });
-  await club.save();
+
+  if(!club) {
+    throw new apiError(401, "Error during club creation")
+  }
+
+  const findClub = await Club.findById(club._id).select("-password");
+
   return res
     .status(201)
-    .json(new apiResponse(201, club, "Club created successfully."));
+    .json(new apiResponse(201, findClub, "Club created successfully."));
 });
 
 // GET
 export const getAllClubs = asyncHandler(async (req, res) => {
   const { type } = req.params;
  
-  const clubs = await Club.find({ type });
+  const clubs = await Club.find({ type }).select("-password");
   console.log(type);
  
   res
