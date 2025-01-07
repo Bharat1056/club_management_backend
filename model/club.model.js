@@ -109,4 +109,7 @@ clubSchema.pre("find", function (next) {
   next();
 });
 
+
+
+
 export const Club = mongoose.model("Club", clubSchema);
