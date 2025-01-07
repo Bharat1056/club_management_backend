@@ -94,4 +94,19 @@ clubSchema.pre("save", async function (next) {
   next();
 });
 
+clubSchema.pre("findOne", function (next) {
+  this.populate({
+    path: "members.type",
+    select: "-password",   });
+  next();
+});
+
+clubSchema.pre("find", function (next) {
+  this.populate({
+    path: "members.type",
+    select: "-password", 
+  });
+  next();
+});
+
 export const Club = mongoose.model("Club", clubSchema);
