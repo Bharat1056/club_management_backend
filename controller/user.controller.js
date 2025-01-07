@@ -290,43 +290,67 @@ export const createUserWithoutVerification = asyncHandler(async (req, res) => {
     skills,
     githubLink,
     linkedinLink,
+    clubName,
   } = req.body;
 
-  // Validate required fields
+  const clubsInDatabase = await Club.find();
+  console.log("All clubs in the database:", clubsInDatabase);
+  
+  
   emptyFieldValidation([regdNo, email, password, fullName]);
 
+
   const existingUser = await User.findOne({
-    $or: [{ email }, { regdNo }],
+    $or: [{ email }, { regdNo }], 
   }).session(session);
 
   if (existingUser) {
-    throw new apiError(409, "User already exists. please login");
+    throw new apiError(409, "User already exists. Please login");
   }
+
+
+  console.log("Received clubName:", clubName);
+
+  const normalizedClubName = clubName.trim().normalize();
+  const club = await Club.findOne({
+    clubName: { $regex: new RegExp(normalizedClubName, 'i') }, 
+  }).session(session);
+  
+
+  if (!club) {
+    console.log("Error: Club not found with name:", clubName);
+    throw new apiError(404, "Club with the specified name does not exist");
+  }
+
+  console.log("Found club:", club);
 
   // Create the user
-    const user = await User.create(
-      [
-        {
-          regdNo,
-          email,
-          password,
-          fullName,
-          gender,
-          yearOfGraduation,
-          domain,
-          photo,
-          skills,
-          githubLink,
-          linkedinLink,
-          isAuthenticated: true,
-        },
-      ],
-      { session }
-    );
+  const user = await User.create(
+    [
+      {
+        regdNo,
+        email,
+        password,
+        fullName,
+        gender,
+        yearOfGraduation,
+        domain,
+        photo,
+        skills,
+        githubLink,
+        linkedinLink,
+        clubId: [{ type: club._id }],
+        isAuthenticated: true,
+        isInClub: true,
+      },
+    ],
+    { session }
+  );
 
   if (!user) {
-    throw new apiError(404, "There is an error occured in creating user");
+    throw new apiError(404, "An error occurred while creating the user");
   }
+
   await session.commitTransaction();
   res
     .status(201)
