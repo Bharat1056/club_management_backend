@@ -9,10 +9,19 @@ const achievementSchema = new Schema({
     type: String,
     required: true,
   },
+  date:{
+    type: String,
+    required: true,
+  },
   clubId: {
     type: Schema.Types.ObjectId,
     ref: "Club",
     required: true,
+  },
+  Image: {
+    type: String,
+
+    required: true, 
   },
 }, { timestamps: true });
 
