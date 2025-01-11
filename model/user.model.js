@@ -1,11 +1,10 @@
+import bcrypt from "bcrypt";
 import mongoose, { Schema } from "mongoose";
 import {
-  clubPhotoLimit,
   domainList,
   hashSaltRound,
   skillsArrayLimit,
 } from "../constants/constant.js";
-import bcrypt from "bcrypt";
 
 const baseClubUserSchema = new Schema({
   type: {
@@ -45,7 +44,7 @@ const userSchema = new Schema(
       enum: ["Male", "Female", "Other"],
       required: [true, "Gender box can't be empty"],
     },
-    role: { 
+    role: {
       type: String,
       enum: ["Member", "Assistant-Coordinator", "Coordinator"],
       default: "Member",
@@ -99,7 +98,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(hashSaltRound);
-  this.password =await bcrypt.hash(this.password, salt);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
