@@ -1,20 +1,20 @@
-import { User } from "../model/user.model.js";
-import asyncHandler from "../utils/asyncHandler.js";
-import apiError from "../utils/apiError.js";
-import apiResponse from "../utils/apiResponse.js";
+import mongoose from "mongoose";
+import cron from "node-cron";
+import sendEmailViaResend from "../helper/emailSend.js";
 import emptyFieldValidation from "../helper/emptyFieldValidation.js";
 import { Club } from "../model/club.model.js";
-import sendEmailViaResend from "../helper/emailSend.js";
-import cron from "node-cron";
-import mongoose from "mongoose";
+import { User } from "../model/user.model.js";
+import apiError from "../utils/apiError.js";
+import apiResponse from "../utils/apiResponse.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { baseUrl } from "../constants/constant.js";
 import {
   apiTriggerViaQueue,
   emailSendViaQueue,
 } from "../helper/messageQueue.js";
-import { baseUrl } from "../constants/constant.js";
 
 export const createUser = asyncHandler(async (req, res) => {
   const session = await mongoose.startSession();
@@ -276,100 +276,67 @@ export const getUserById = asyncHandler(async (req, res) => {
 
 export const createUserWithoutVerification = asyncHandler(async (req, res) => {
   const session = await mongoose.startSession();
-  session.startTransaction();
 
-  const {
-    regdNo,
-    email,
-    password,
-    fullName,
-    gender,
-    yearOfGraduation,
-    domain,
-    photo,
-    skills,
-    githubLink,
-    linkedinLink,
-    clubName,
-  } = req.body;
+  const transactionHandler = async () => {
+    const { users, clubName } = req.body;
 
-  const clubsInDatabase = await Club.find();
-  console.log("All clubs in the database:", clubsInDatabase);
-  
-  
-  emptyFieldValidation([regdNo, email, password, fullName]);
+    const club = await Club.findOne({ clubName }).session(session);
+    if (!club) throw new apiError(404, "Club not found.");
 
+    const clubId = club._id;
+    const userIds = new Set(club.members.map((m) => m.type.toString()));
 
-  const existingUser = await User.findOne({
-    $or: [{ email }, { regdNo }], 
-  }).session(session);
-
-  if (existingUser) {
-    throw new apiError(409, "User already exists. Please login");
-  }
-
-
-  console.log("Received clubName:", clubName);
-
-  const normalizedClubName = clubName.trim().normalize();
-  const club = await Club.findOne({
-    clubName: { $regex: new RegExp(normalizedClubName, 'i') }, 
-  }).session(session);
-  
-
-  if (!club) {
-    console.log("Error: Club not found with name:", clubName);
-    throw new apiError(404, "Club with the specified name does not exist");
-  }
-
-  console.log("Found club:", club);
-
-  // Create the user
-  const user = await User.create(
-    [
-      {
-        regdNo,
-        email,
-        password,
-        fullName,
-        gender,
-        yearOfGraduation,
-        domain,
-        photo,
-        skills,
-        githubLink,
-        linkedinLink,
-        clubId: [{ type: club._id }],
-        isAuthenticated: true,
-        isInClub: true,
+    const bulkOps = users.map((userData) => ({
+      updateOne: {
+        filter: {
+          $or: [{ regdNo: userData.regdNo }, { email: userData.email }],
+        },
+        update: {
+          $set: userData,
+          $addToSet: { clubId: { type: clubId } },
+        },
+        upsert: true,
       },
-    ],
-    { session }
-  );
+    }));
 
-  if (!user) {
-    throw new apiError(404, "An error occurred while creating the user");
+    const result = await User.bulkWrite(bulkOps, { session });
+
+    // Update club members
+    const newUserIds = result.upsertedIds
+      ? Object.values(result.upsertedIds)
+      : [];
+    for (const userId of newUserIds) {
+      if (!userIds.has(userId.toString())) {
+        club.members.push({ type: userId });
+      }
+    }
+
+    await club.save({ session });
+  };
+
+  try {
+    await session.withTransaction(transactionHandler, {
+      readConcern: { level: "local" },
+      writeConcern: { w: "majority" },
+    });
+    res
+      .status(201)
+      .json(new apiResponse(201, "Users created/updated successfully"));
+  } catch (error) {
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  await session.commitTransaction();
-  res
-    .status(201)
-    .json(
-      new apiResponse(201, user, "User created successfully but not verified")
-    );
 });
-
-
 
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-
 
   if (!email || !password) {
     throw new apiError(400, "Email and password are required.");
   }
 
-  console.log(email,password)
+  console.log(email, password);
   const user = await User.findOne({ email });
   if (!user) {
     throw new apiError(404, "User not found.");
@@ -380,24 +347,26 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new apiError(401, "Invalid credentials.");
   }
   if (!user.isAuthenticated) {
-    return res.status(401).json(new apiResponse(401, null, "User not verified."));
+    return res
+      .status(401)
+      .json(new apiResponse(401, null, "User not verified."));
   }
   // if (!user.isInClub) {
   //   return res.status(401).json(new apiResponse(401, null, "User is not present in any club."));
   // }
   const token = jwt.sign(
     { _id: user._id, email: user.email },
-    process.env. ACCESS_TOKEN_SECRET_USER    ,
-    { expiresIn: "1d" }  
+    process.env.ACCESS_TOKEN_SECRET_USER,
+    { expiresIn: "1d" }
   );
 
+  res.cookie("userT", token, {
+    httpOnly: true,
+    secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
 
-  res.cookie("userT", token, { httpOnly: true, secure: true, maxAge: 24 * 60 * 60 * 1000 }); 
-
-
-  return res.status(200).json(new apiResponse(200, { token }, "User logged in successfully."));
+  return res
+    .status(200)
+    .json(new apiResponse(200, { token }, "User logged in successfully."));
 });
-
-
-
-
